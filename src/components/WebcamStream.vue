@@ -8,8 +8,8 @@
     <canvas ref="canvasElement" style="display:none;"></canvas>
     <div class="action-buttons">
       <button v-if="!recordedBlob" @click="handleRecording">Start Recording</button>
-      <button v-if="recordedBlob" @click="downloadVideo">Download Video</button>
-      <button v-if="recordedBlob" @click="captureImages">Capture Images</button>
+      <!-- <button v-if="recordedBlob" @click="downloadVideo">Download Video</button> -->
+      <!-- <button v-if="recordedBlob" @click="captureImages">Capture Images</button> -->
       <!-- <button v-if="recordedBlob" @click="speechToText">Speech to text</button> -->
     </div>
     <div v-if="capturedImages.length">
@@ -18,7 +18,7 @@
         <img v-for="(src, index) in capturedImages" :key="index" :src="src" />
       </div>
     </div>
-    <button v-if="capturedImages.length" @click="chatCompletion">Chat completion</button>
+    <!-- <button v-if="capturedImages.length" @click="chatCompletion">Chat completion</button> -->
     <div v-if="output">
       {{ output }}
     </div>
@@ -121,9 +121,11 @@ export default {
     },
 
     async handleRecording() {
+      this.isLoading = true;
       const stream = await this.getWebcamStream();
 
       if (stream) {
+        this.isLoading = false;
         this.recorder = new MediaRecorder(stream);
 
         this.recorder.ondataavailable = event => {
@@ -138,6 +140,7 @@ export default {
           });
           this.recordedChunks = [];
           stream.getTracks().forEach(track => track.stop());
+          this.captureImages();
         };
 
         this.recorder.start();
@@ -188,6 +191,7 @@ export default {
             this.capturedImages.push(canvas.toDataURL('image/png'));
             if (i === 4) {
               video.pause();
+              this.chatCompletion();
             }
           }, i * captureInterval * 1000); // Multiply by 1000 to convert seconds to milliseconds
         }
