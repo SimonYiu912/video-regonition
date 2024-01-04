@@ -230,7 +230,7 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 300px;
+  width: auto;
 }
 
 button:hover {
