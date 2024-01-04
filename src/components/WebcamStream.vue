@@ -65,7 +65,7 @@ export default {
       let content = [
         {
           "type": "text",
-          "text": "Use 50 words to tell me what¡¦s the guy doing?"
+          "text": "Use 50 words to tell me what¡¦s this guy doing using the images I provide to you? Please pay attention to the sequence of the images."
         }
       ]
       for (let i = 0; i < this.capturedImages.length; i++) {
@@ -167,35 +167,43 @@ export default {
       window.URL.revokeObjectURL(url);
     },
     captureImages() {
+      // Create a video element
       const video = document.createElement('video');
       video.src = URL.createObjectURL(this.recordedBlob);
-      video.load();
-      video.play();
 
-      // Wait for the video to be ready, then capture the images
-      video.oncanplaythrough = () => {
+      video.load();
+
+      // When the metadata is loaded, set up the canvas size
+      video.onloadedmetadata = () => {
         const canvas = this.$refs.canvasElement;
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const context = canvas.getContext('2d');
 
-        // Calculate the time interval for capturing images
-        const captureInterval = 5 / 5; // Duration is 5 seconds, so we divide by 5 to get 5 images
-
-        // Clear previously captured images
+        // Initialize captured images array
         this.capturedImages = [];
 
-        for (let i = 0; i < 5; i++) {
-          setTimeout(() => {
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            this.capturedImages.push(canvas.toDataURL('image/png'));
-            if (i === 4) {
-              video.pause();
+        // This function will capture the images at each interval
+        const captureImage = (index) => {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          this.capturedImages.push(canvas.toDataURL('image/png'));
+
+          if (index >= 4) {
+            video.pause();
+            if (this.chatCompletion) {
               this.chatCompletion();
             }
-          }, i * captureInterval * 1000); // Multiply by 1000 to convert seconds to milliseconds
-        }
+          } else {
+            setTimeout(() => captureImage(index + 1), 1000);
+          }
+        };
+
+        // Start capturing images one second apart
+        setTimeout(() => captureImage(0), 2000);
       };
+
+      // Play the video
+      video.play();
     }
   }
 };
