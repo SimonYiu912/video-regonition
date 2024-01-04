@@ -3,15 +3,15 @@
     <div v-if="isLoading" class="loading-screen">
       <p>Loading...</p>
     </div>
-    <h1>Webcam Stream</h1>
-    <video ref="videoElement" autoplay playsinline></video>
-    <canvas ref="canvasElement" style="display:none;"></canvas>
     <div class="action-buttons">
-      <button v-if="!recordedBlob" @click="handleRecording">Start Recording</button>
+      <button @click="handleRecording">Start Recording</button>
       <!-- <button v-if="recordedBlob" @click="downloadVideo">Download Video</button> -->
       <!-- <button v-if="recordedBlob" @click="captureImages">Capture Images</button> -->
       <!-- <button v-if="recordedBlob" @click="speechToText">Speech to text</button> -->
     </div>
+    <video ref="videoElement" autoplay playsinline></video>
+    <canvas ref="canvasElement" style="display:none;"></canvas>
+
     <div v-if="capturedImages.length">
       <h2>Captured Images</h2>
       <div class="images-container">
