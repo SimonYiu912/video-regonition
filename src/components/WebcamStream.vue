@@ -112,7 +112,7 @@ export default {
     },
     async getWebcamStream() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         this.$refs.videoElement.srcObject = stream;
         return stream;
       } catch (error) {
@@ -145,10 +145,10 @@ export default {
 
         this.recorder.start();
 
-        // Stop recording after 5 seconds
+        // Stop recording after 7 seconds
         setTimeout(() => {
           this.recorder.stop();
-        }, 5000);
+        }, 7000);
       }
     },
 
