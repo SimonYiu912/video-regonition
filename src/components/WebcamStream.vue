@@ -65,7 +65,7 @@ export default {
       let content = [
         {
           "type": "text",
-          "text": "Use 50 words to tell me what¡¦s this guy doing using the images I provide to you? Please pay attention to the sequence of the images."
+          "text": "Use 20 words to describe What is this guy doing in the images I provide to you? Please pay attention to the sequence of the images."
         }
       ]
       for (let i = 0; i < this.capturedImages.length; i++) {
@@ -112,7 +112,7 @@ export default {
     },
     async getWebcamStream() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         this.$refs.videoElement.srcObject = stream;
         return stream;
       } catch (error) {
@@ -145,10 +145,10 @@ export default {
 
         this.recorder.start();
 
-        // Stop recording after 7 seconds
+        // Stop recording after 5 seconds
         setTimeout(() => {
           this.recorder.stop();
-        }, 7000);
+        }, 8000);
       }
     },
 
@@ -167,43 +167,37 @@ export default {
       window.URL.revokeObjectURL(url);
     },
     captureImages() {
-      // Create a video element
       const video = document.createElement('video');
       video.src = URL.createObjectURL(this.recordedBlob);
-
       video.load();
+      video.play();
 
-      // When the metadata is loaded, set up the canvas size
-      video.onloadedmetadata = () => {
+      // Wait for the video to be ready, then capture the images
+      video.oncanplaythrough = () => {
         const canvas = this.$refs.canvasElement;
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const context = canvas.getContext('2d');
 
-        // Initialize captured images array
+        // Calculate the time interval for capturing images
+        const captureInterval = 5 / 5; // Duration is 5 seconds, so we divide by 5 to get 5 images
+
+        // Clear previously captured images
         this.capturedImages = [];
 
-        // This function will capture the images at each interval
-        const captureImage = (index) => {
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          this.capturedImages.push(canvas.toDataURL('image/png'));
-
-          if (index >= 4) {
-            video.pause();
-            if (this.chatCompletion) {
-              this.chatCompletion();
+        for (let i = 0; i < 8; i++) {
+          setTimeout(() => {
+            if (i > 2) {
+              context.drawImage(video, 0, 0, canvas.width, canvas.height);
+              this.capturedImages.push(canvas.toDataURL('image/png'));
+              if (i === 7) {
+                video.pause();
+                this.chatCompletion();
+              }
             }
-          } else {
-            setTimeout(() => captureImage(index + 1), 1000);
-          }
-        };
-
-        // Start capturing images one second apart
-        setTimeout(() => captureImage(0), 2000);
+          }, i * captureInterval * 1000); // Multiply by 1000 to convert seconds to milliseconds
+        }
       };
-
-      // Play the video
-      video.play();
     }
   }
 };
