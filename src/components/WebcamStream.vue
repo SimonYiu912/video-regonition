@@ -6,10 +6,12 @@
     <h1>Webcam Stream</h1>
     <video ref="videoElement" autoplay playsinline></video>
     <canvas ref="canvasElement" style="display:none;"></canvas>
-    <button @click="handleRecording">Start Recording</button>
-    <button v-if="recordedBlob" @click="downloadVideo">Download Video</button>
-    <button v-if="recordedBlob" @click="captureImages">Capture Images</button>
-    <!-- <button v-if="recordedBlob" @click="speechToText">Speech to text</button> -->
+    <div class="action-buttons">
+      <button v-if="!recordedBlob" @click="handleRecording">Start Recording</button>
+      <button v-if="recordedBlob" @click="downloadVideo">Download Video</button>
+      <button v-if="recordedBlob" @click="captureImages">Capture Images</button>
+      <!-- <button v-if="recordedBlob" @click="speechToText">Speech to text</button> -->
+    </div>
     <div v-if="capturedImages.length">
       <h2>Captured Images</h2>
       <div class="images-container">
@@ -199,6 +201,16 @@ export default {
 .webcam {
   font-family: 'Arial', sans-serif;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
 }
 
 h1 {
@@ -218,6 +230,7 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 300px;
 }
 
 button:hover {
