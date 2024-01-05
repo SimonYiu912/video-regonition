@@ -3,6 +3,12 @@
     <div v-if="isLoading" class="loading-screen">
       <p>Loading...</p>
     </div>
+    <h1 v-if="isRecording && !isLoading" class="loading-screen">
+      <p>Recording...</p>
+    </h1>
+
+    <v-switch v-model="enableAudioDetection" label="Audio Detection" color="primary" inset></v-switch>
+
     <div class="action-buttons">
       <button @click="handleRecording">Start Recording</button>
       <!-- <button v-if="recordedBlob" @click="downloadVideo">Download Video</button> -->
@@ -31,12 +37,18 @@ export default {
   name: 'WebcamStream',
   data() {
     return {
+      stream: null,
+      audioContext: null,
+      audioProcessor: null,
+      threshold: 0.1,
       recorder: null,
       recordedChunks: [],
       recordedBlob: null,
       capturedImages: [],
       output: null,
+      isRecording: false,
       isLoading: false,
+      enableAudioDetection: false
     };
   },
   methods: {
@@ -107,26 +119,55 @@ export default {
         .catch((error) => {
           console.log(error);
         }).finally(() => {
+          this.isRecording = false;
           this.isLoading = false;
+          this.initWebcamStream();
         })
     },
-    async getWebcamStream() {
+    async initWebcamStream() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         this.$refs.videoElement.srcObject = stream;
-        return stream;
+        this.stream = stream;
+        this.setupAudioProcessing();
       } catch (error) {
         console.error('Error accessing the webcam', error);
       }
     },
+    setupAudioProcessing() {
+      if (!this.stream) {
+        return;
+      }
 
+      this.audioContext = new AudioContext();
+      const source = this.audioContext.createMediaStreamSource(this.stream);
+      this.audioProcessor = this.audioContext.createScriptProcessor(1024, 1, 1);
+
+      source.connect(this.audioProcessor);
+      this.audioProcessor.connect(this.audioContext.destination);
+
+      this.audioProcessor.onaudioprocess = (event) => {
+        if (!this.enableAudioDetection) {
+          return;
+        }
+        const input = event.inputBuffer.getChannelData(0);
+        let sum = 0.0;
+        for (let i = 0; i < input.length; ++i) {
+          sum += input[i] * input[i];
+        }
+        let volume = Math.sqrt(sum / input.length);
+        if (volume > this.threshold && !this.isRecording) {
+          this.handleRecording();
+        }
+      };
+    },
     async handleRecording() {
+      this.isRecording = true;
       this.isLoading = true;
-      const stream = await this.getWebcamStream();
 
-      if (stream) {
+      if (this.stream) {
         this.isLoading = false;
-        this.recorder = new MediaRecorder(stream);
+        this.recorder = new MediaRecorder(this.stream);
 
         this.recorder.ondataavailable = event => {
           if (event.data.size > 0) {
@@ -139,7 +180,7 @@ export default {
             type: 'video/mp4'
           });
           this.recordedChunks = [];
-          stream.getTracks().forEach(track => track.stop());
+          this.stream.getTracks().forEach(track => track.stop());
           this.captureImages();
         };
 
@@ -199,7 +240,10 @@ export default {
         }
       };
     }
-  }
+  },
+  async mounted() {
+    await this.initWebcamStream();
+  },
 };
 </script>
 
