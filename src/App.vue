@@ -8,22 +8,30 @@
       </v-btn>
     </template>
 
-    <v-card height="650" width="420" title="eClass AI" subtitle="Your eClass Intelligent Assistant"
-      class="d-flex flex-column align-center">
+    <v-card height="650" width="420" class="d-flex flex-column align-center">
+      <v-card-title style="width: 100%;">
+        <img src="./assets/eClassAI.png" width="100px" />
+      </v-card-title>
 
-      <v-btn-toggle v-model="text" color="indigo-darken-4" group rounded="xl">
-        <v-btn value="Text">
-          Text
-        </v-btn>
+      <v-card-subtitle style="width: 100%;">
+        <strong>Your eClass Intelligent Assistant</strong>
+      </v-card-subtitle>
 
-        <v-btn value="Video">
-          Video
-        </v-btn>
+      <v-card-item style="width: 100%;" class="d-flex justify-center">
+        <v-btn-toggle v-model="text" color="indigo-darken-4" group rounded="xl">
+          <v-btn value=" Text">
+            Text
+          </v-btn>
 
-        <v-btn value="Sound">
-          Sound
-        </v-btn>
-      </v-btn-toggle>
+          <v-btn value="Video">
+            Video
+          </v-btn>
+
+          <v-btn value="Sound">
+            Sound
+          </v-btn>
+        </v-btn-toggle>
+      </v-card-item>
 
       <v-card-actions>
         <h2 v-show="text !== 'Video'">Coming soon</h2>

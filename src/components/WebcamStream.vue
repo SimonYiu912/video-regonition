@@ -264,8 +264,6 @@ export default {
 .action-buttons {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 10px 0;
 }
 
 h1 {
