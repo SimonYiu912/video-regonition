@@ -162,7 +162,7 @@ export default {
       document.body.appendChild(a);
       a.style = 'display: none';
       a.href = url;
-      a.download = 'recorded-video.webm';
+      a.download = 'recorded-video.mp4';
       a.click();
       window.URL.revokeObjectURL(url);
     },
