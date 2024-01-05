@@ -3,19 +3,15 @@
     <div v-if="isLoading" class="loading-screen">
       <p>Loading...</p>
     </div>
-    <h1 v-if="isRecording && !isLoading" class="loading-screen">
-      <p>Recording...</p>
-    </h1>
 
-    <v-switch v-model="enableAudioDetection" label="Audio Detection" color="primary" inset></v-switch>
-
-    <div class="action-buttons">
-      <button @click="handleRecording">Start Recording</button>
-      <!-- <button v-if="recordedBlob" @click="downloadVideo">Download Video</button> -->
-      <!-- <button v-if="recordedBlob" @click="captureImages">Capture Images</button> -->
-      <!-- <button v-if="recordedBlob" @click="speechToText">Speech to text</button> -->
+    <div class="action-buttons" v-if="!isRecording && !isLoading">
+      <v-btn @click="handleRecording" :disabled="enableAutoDetection">Start Recording</v-btn>
+      <v-switch v-model="enableAutoDetection" label="Auto Detection" color="primary" inset></v-switch>
     </div>
-    <video ref="videoElement" autoplay playsinline></video>
+    <div v-else>
+      <p>Recording...</p>
+    </div>
+    <video ref="videoElement" autoplay playsinline style="width: 380px"></video>
     <canvas ref="canvasElement" style="display:none;"></canvas>
 
     <div v-if="capturedImages.length">
@@ -24,10 +20,14 @@
         <img v-for="(src, index) in capturedImages" :key="index" :src="src" />
       </div>
     </div>
-    <!-- <button v-if="capturedImages.length" @click="chatCompletion">Chat completion</button> -->
-    <div v-if="output">
-      {{ output }}
+
+    <div class="conversations">
+      <v-divider></v-divider>
+      <div v-if="output">
+        {{ output }}
+      </div>
     </div>
+
   </div>
 </template>
 <script>
@@ -45,10 +45,11 @@ export default {
       recordedChunks: [],
       recordedBlob: null,
       capturedImages: [],
-      output: null,
+      conversation: [],
+      output: 123,
       isRecording: false,
       isLoading: false,
-      enableAudioDetection: false
+      enableAutoDetection: false
     };
   },
   methods: {
@@ -147,7 +148,7 @@ export default {
       this.audioProcessor.connect(this.audioContext.destination);
 
       this.audioProcessor.onaudioprocess = (event) => {
-        if (!this.enableAudioDetection) {
+        if (!this.enableAutoDetection) {
           return;
         }
         const input = event.inputBuffer.getChannelData(0);
@@ -301,6 +302,11 @@ button:hover {
   border: 2px solid #ddd;
   border-radius: 4px;
   padding: 5px;
+}
+
+.conversations {
+  margin: 10px;
+  width: 100%;
 }
 
 .output {
