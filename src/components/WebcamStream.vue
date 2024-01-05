@@ -1,32 +1,33 @@
 <template>
   <div class="webcam">
-    <div v-if="isLoading" class="loading-screen">
-      <p>Loading...</p>
+    <div class="action-buttons">
+      <!-- <v-btn v-if="!isRecording && !isLoading" @click="handleRecording" :disabled="enableAutoDetection">Start
+        Recording</v-btn> -->
+      <v-switch v-model="enableAutoDetection" label="Auto Detection" color="primary" inset hide-details></v-switch>
     </div>
-
-    <div class="action-buttons" v-if="!isRecording && !isLoading">
-      <v-btn @click="handleRecording" :disabled="enableAutoDetection">Start Recording</v-btn>
-      <v-switch v-model="enableAutoDetection" label="Auto Detection" color="primary" inset></v-switch>
-    </div>
-    <div v-else>
+    <div v-if="isRecording">
       <p>Recording...</p>
     </div>
-    <video ref="videoElement" autoplay playsinline style="width: 380px"></video>
+    <video ref="videoElement" autoplay playsinline style="width: 380px;"></video>
     <canvas ref="canvasElement" style="display:none;"></canvas>
 
-    <div v-if="capturedImages.length">
+    <!-- <div v-if="capturedImages.length">
       <h2>Captured Images</h2>
       <div class="images-container">
         <img v-for="(src, index) in capturedImages" :key="index" :src="src" />
       </div>
-    </div>
+    </div> -->
 
-    <div class="conversations">
+    <v-list class="conversations" lines="two">
       <v-divider></v-divider>
-      <div v-if="output">
-        {{ output }}
-      </div>
-    </div>
+      <template v-for="conversation in conversations" :key="conversation.id">
+        <v-list-item
+          :prepend-avatar="conversation.role === 'user' ? 'https://cdn.vuetifyjs.com/images/john.jpg' : 'https://cdn.iconscout.com/icon/premium/png-256-thumb/ai-robot-5-1089411.png'">
+          {{ conversation.content }}
+        </v-list-item>
+        <v-divider></v-divider>
+      </template>
+    </v-list>
 
   </div>
 </template>
@@ -45,8 +46,7 @@ export default {
       recordedChunks: [],
       recordedBlob: null,
       capturedImages: [],
-      conversation: [],
-      output: 123,
+      conversations: [],
       isRecording: false,
       isLoading: false,
       enableAutoDetection: false
@@ -75,6 +75,10 @@ export default {
     },
     chatCompletion() {
       this.isLoading = true;
+      this.conversations.push({
+        role: 'user',
+        content: 'Describe What is this guy doing'
+      })
       let content = [
         {
           "type": "text",
@@ -114,8 +118,10 @@ export default {
 
       axios.request(config)
         .then((response) => {
-          console.log(JSON.stringify(response.data));
-          this.output = JSON.stringify(response.data.choices[0].message.content);
+          this.conversations.push({
+            role: 'ai',
+            content: response.data.choices[0].message.content
+          })
         })
         .catch((error) => {
           console.log(error);
@@ -307,13 +313,6 @@ button:hover {
 .conversations {
   margin: 10px;
   width: 100%;
-}
-
-.output {
-  margin-top: 20px;
-  background-color: #f1f1f1;
-  padding: 10px;
-  border-radius: 4px;
 }
 
 .loading-screen {

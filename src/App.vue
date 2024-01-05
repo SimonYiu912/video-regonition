@@ -1,7 +1,11 @@
 <template>
   <v-menu v-model="menu" :close-on-content-click="false" location="start">
     <template v-slot:activator="{ props }">
-      <v-btn icon="mdi-robot" v-bind="props" style="position: absolute; bottom: 20px; right: 20px;"></v-btn>
+      <v-btn v-bind="props"
+        style="position: absolute; bottom: 20px; right: 20px;width:25px; height: 60px; border-radius: 50%;">
+        <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/ai-robot-5-1089411.png" alt="AI Robot"
+          style="width:25px; height: 25px;">
+      </v-btn>
     </template>
 
     <v-card height="650" width="420" title="eClass AI" subtitle="Your eClass Intelligent Assistant"
