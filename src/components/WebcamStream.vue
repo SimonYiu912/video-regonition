@@ -18,7 +18,7 @@
       </div>
     </div> -->
 
-    <v-list class="conversations" lines="two">
+    <v-list v-if="conversations.length" class="conversations" lines="two">
       <v-divider></v-divider>
       <template v-for="conversation in conversations" :key="conversation.id">
         <v-list-item
@@ -128,7 +128,6 @@ export default {
         }).finally(() => {
           this.isRecording = false;
           this.isLoading = false;
-          this.initWebcamStream();
         })
     },
     async initWebcamStream() {
@@ -187,7 +186,6 @@ export default {
             type: 'video/mp4'
           });
           this.recordedChunks = [];
-          this.stream.getTracks().forEach(track => track.stop());
           this.captureImages();
         };
 
@@ -313,6 +311,11 @@ button:hover {
 .conversations {
   margin: 10px;
   width: 100%;
+}
+
+.v-divider {
+  margin: 0 !important;
+  border: 1px solid #000 !important;
 }
 
 .loading-screen {
